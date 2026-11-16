@@ -39,6 +39,11 @@
       padding: 22px; margin: 28px 0 0; box-shadow: 0 18px 50px rgba(0,0,0,.35);
     }
     .card h2 { margin: 0 0 16px; font-size: 1.05rem; }
+    .meta {
+      margin: 0 0 16px; color: var(--muted); font-size: .82rem; line-height: 1.6;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .meta b { color: #99f6e4; font-weight: 600; }
     .btn {
       display: inline-flex; align-items: center; gap: 8px; border: 0; cursor: pointer;
       padding: 12px 18px; border-radius: 12px; font-size: 1rem; font-weight: 700;
@@ -67,11 +72,13 @@
     </div>
     <div class="card" data-anim>
       <h2 data-i18n="title">Download</h2>
+      <div class="meta" id="statusMeta">Last Update: —<br/>Last Check: — : —</div>
       <a class="btn" id="btn-pack" href="#" data-i18n="btn">Download</a>
     </div>
   </div>
   <script>
     const DOWNLOAD_URL = window.AIC11_DOWNLOAD_URL || 'https://github.com/AC11-AI/niceguifps-download/releases/latest/download/NiceGUIFPS_Pack.zip';
+    const STATUS_URL = window.AIC11_STATUS_URL || 'https://niceguifps-license.onrender.com/api/v1/public-status';
     const I18N = {
       zh: { title: 'Download', btn: 'Download' },
       en: { title: 'Download', btn: 'Download' }
@@ -94,6 +101,22 @@
     document.getElementById('btn-en').onclick = () => { lang = 'en'; applyLang(); };
     applyLang();
     document.getElementById('btn-pack').href = DOWNLOAD_URL;
+
+    async function loadStatus() {
+      const el = document.getElementById('statusMeta');
+      try {
+        const r = await fetch(STATUS_URL + '?t=' + Date.now());
+        const j = await r.json();
+        const upd = j.last_update || '—';
+        const chk = j.last_check || '—';
+        const st = j.status || '—';
+        el.innerHTML = 'Last Update: <b>' + upd + '</b><br/>Last Check: <b>' + chk + '</b> : <b>' + st + '</b>';
+      } catch (e) {
+        el.textContent = 'Last Update: —\nLast Check: — : —';
+      }
+    }
+    loadStatus();
+
     const g = window.gsap;
     const boot = document.getElementById('boot');
     const app = document.getElementById('app');
